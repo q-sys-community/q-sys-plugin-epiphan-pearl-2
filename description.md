@@ -1,6 +1,6 @@
-# q-sys-plugin-epiphan-pearl-2
+# Epiphan Pearl-2
 
-QSC Q-Sys plugin for Epiphan Pearl-2
+Plugin for Epiphan Pearl-2.
 
 ## Features
 
