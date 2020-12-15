@@ -34,7 +34,7 @@ function GetProperties()
 			Type = "integer",
 			Min = 2,	-- Set to 2 to prevent complex code to handle non-arrays
 			Max = MaxChannels,
-			Value = 1
+			Value = 2
 		},
 		{
 			Name = "Username",
