@@ -30,13 +30,6 @@ function GetProperties()
 			Value = "127.0.0.1"
 		},
 		{
-			Name = "Channel Count",
-			Type = "integer",
-			Min = 2,	-- Set to 2 to prevent complex code to handle non-arrays
-			Max = MaxChannels,
-			Value = 2
-		},
-		{
 			Name = "Username",
 			Type = "string",
 			Value = "admin"
@@ -47,11 +40,23 @@ function GetProperties()
 			Value = ""
 		},
 		{
+			Name = "Channel Count",
+			Type = "integer",
+			Min = 2, -- Set to 2 to prevent complex code to handle non-arrays
+			Max = MaxChannels,
+			Value = 2
+		},
+		{
 			Name = "Layout Count",
 			Type = "integer",
 			Min = 1,
 			Max = 10,
 			Value = 5
+		},
+		{
+			Name = "Editable RTMP Names",
+			Type = "boolean",
+			Value = false
 		}
 	}
 	return props
@@ -151,6 +156,13 @@ function GetControls(props)
 			Count = props["Channel Count"].Value,
 			UserPin = true,
 			PinStyle = "Output"
+		},
+		{
+			Name = "ChannelStreamName",
+			ControlType = "Text",
+			Count = props["Channel Count"].Value,
+			UserPin = true,
+			PinStyle = "Both"
 		}
 	}
 
@@ -297,6 +309,29 @@ function GetControlLayout(props)
 		Position = {x + 80, y + 0},
 		Size = {25, 25}
 	}
+	if props["Editable RTMP Names"].Value then
+		-- RTMP Stream Name
+		table.insert(
+			graphics,
+			{
+				Type = "Text",
+				Text = string.format("RTMP Stream Name"),
+				Font = "Roboto",
+				FontSize = 12,
+				FontStyle = "Bold",
+				HTextAlign = "Right",
+				Color = Colors.Black,
+				Position = {x + 192, y + 0},
+				Size = {128, 25}
+			}
+		)
+		layout["ChannelStreamName" .. ctl_str] = {
+			PrettyName = "Channel" .. ctl_str .. "~Stream~RTMP Stream Name",
+			Style = "Text",
+			Position = {x + 324, y + 0},
+			Size = {80, 25}
+		}
+	end
 	-- Add Label
 	table.insert(
 		graphics,
@@ -491,6 +526,23 @@ if Controls then
 		}
 	end
 
+	function setStreamName(c, newName)
+		url = "http://" .. Properties["IP Host"].Value
+		url = url .. "/admin/channel" .. c .. "/set_params.cgi?"
+		url = url .. "rtmp_stream="
+		url = url .. newName
+
+		HttpClient.Download {
+			Channel = c,
+			Url = url,
+			Headers = {},
+			User = Properties.Username.Value,
+			Password = Properties.Password.Value,
+			Timeout = 10,
+			EventHandler = handleGetParams
+		}
+	end
+
 	function setRecord(c, active)
 		url = "http://" .. Properties["IP Host"].Value
 		url = url .. "/admin/channel" .. c .. "/set_params.cgi?"
@@ -563,6 +615,16 @@ if Controls then
 						if changedControl.Boolean == true then
 							setStream(c, false)
 						end
+					end
+				end
+			elseif k == "ChannelStreamName" then
+				if Properties["Channel Count"].Value > 1 then
+					v[c].EventHandler = function(changedControl)
+						setStreamName(c, changedControl.String)
+					end
+				else
+					v.EventHandler = function(changedControl)
+						setStreamName(c, changedControl.String)
 					end
 				end
 			elseif k == "ChannelRecordStart" then
