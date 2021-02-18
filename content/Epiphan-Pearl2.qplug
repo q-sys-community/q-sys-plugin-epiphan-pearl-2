@@ -169,9 +169,19 @@ function GetControls(props)
 			Count = props["Channel Count"].Value,
 			UserPin = true,
 			PinStyle = "Both"
+		},
+		{
+			Name = "channel_layout",
+			ControlType = "Knob",
+			ControlUnit = "Integer",
+			Min = 1,
+			Max = MaxLayouts,
+			Count = props["Channel Count"].Value,
+			UserPin = true,
+			PinStyle = "Both"
 		}
 	}
-
+	--[[
 	-- Many layouts on many channels
 	for b = 1, MaxLayouts do
 		table.insert(
@@ -197,7 +207,7 @@ function GetControls(props)
 			}
 		)
 	end
-
+	]]
 	return ctls
 end
 
@@ -218,7 +228,8 @@ function GetControlLayout(props)
 	local btn_size = {32, 24}
 	local status_groupbox_size = {title_size[1], 4 * btn_size[2]}
 	local channel_groupbox_position = {0, title_size[2] + status_groupbox_size[2] + (0.5 * btn_size[2])}
-	local channel_groupbox_size = {2 * title_size[1], (7 * btn_size[2])}
+	local channel_groupbox_size = {title_size[1], (6.5 * btn_size[2])}
+	local add_space_rtmp_name = 0
 
 	graphics = {
 		{
@@ -318,9 +329,35 @@ function GetControlLayout(props)
 			Color = Colors.epiphan_green,
 			StrokeWidth = 1,
 			Position = channel_groupbox_position,
-			Size = channel_groupbox_size
+			Size = {channel_groupbox_size[1], channel_groupbox_size[2]}
 		}
 	)
+
+	if props["Editable RTMP Names"].Value then
+		-- RTMP Stream Name
+		table.insert(
+			graphics,
+			{
+				Type = "Text",
+				Text = string.format("RTMP Name"),
+				Font = "Roboto",
+				FontSize = 12,
+				FontStyle = "Bold",
+				HTextAlign = "Right",
+				Color = Colors.epiphan_green,
+				Position = {channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+				Size = {3 * btn_size[1], btn_size[2]}
+			}
+		)
+		layout["ChannelStreamName" .. ctl_str] = {
+			PrettyName = "Channel" .. ctl_str .. "~Stream~RTMP Stream Name",
+			Style = "Text",
+			Position = {(3*btn_size[1]) + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+			Size = {3 * btn_size[1], btn_size[2]}
+		}
+		add_space_rtmp_name = btn_size[2]
+	end
+
 	table.insert(
 		graphics,
 		{
@@ -345,7 +382,7 @@ function GetControlLayout(props)
 			FontStyle = "Bold",
 			HTextAlign = "Right",
 			Color = Colors.epiphan_green,
-			Position = {channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+			Position = {channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
 			Size = {3 * btn_size[1], btn_size[2]}
 		}
 	)
@@ -359,7 +396,7 @@ function GetControlLayout(props)
 			FontStyle = "Bold",
 			HTextAlign = "Right",
 			Color = Colors.epiphan_green,
-			Position = {channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2]},
+			Position = {channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
 			Size = {3 * btn_size[1], btn_size[2]}
 		}
 	)
@@ -373,7 +410,7 @@ function GetControlLayout(props)
 			FontStyle = "Bold",
 			HTextAlign = "Right",
 			Color = Colors.epiphan_green,
-			Position = {channel_groupbox_position[1], 4 * btn_size[2] + channel_groupbox_position[2]},
+			Position = {channel_groupbox_position[1], 4 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
 			Size = {3 * btn_size[1], btn_size[2]}
 		}
 	)
@@ -388,6 +425,7 @@ function GetControlLayout(props)
 	}
 
 	-- Streaming Section
+	
 
 	layout["ChannelStreamActive" .. ctl_str] = {
 		PrettyName = "Channel" .. ctl_str .. "~Stream~Active",
@@ -397,7 +435,7 @@ function GetControlLayout(props)
 		UnlinkOffColor = true,
 		Position = {
 			3 * btn_size[1] + channel_groupbox_position[1] + ((btn_size[1] - btn_size[2]) / 2),
-			2 * btn_size[2] + channel_groupbox_position[2]
+			2 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name
 		},
 		Size = {btn_size[2], btn_size[2]}
 	}
@@ -407,7 +445,7 @@ function GetControlLayout(props)
 		Style = "Button",
 		Legend = "Start",
 		ButtonStyle = "Momentary",
-		Position = {4 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+		Position = {4 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
 		Size = btn_size
 	}
 
@@ -416,33 +454,11 @@ function GetControlLayout(props)
 		Style = "Button",
 		Legend = "Stop",
 		ButtonStyle = "Momentary",
-		Position = {5 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+		Position = {5 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
 		Size = btn_size
 	}
 
-	if props["Editable RTMP Names"].Value then
-		-- RTMP Stream Name
-		table.insert(
-			graphics,
-			{
-				Type = "Text",
-				Text = string.format("RTMP Stream Name"),
-				Font = "Roboto",
-				FontSize = 12,
-				FontStyle = "Bold",
-				HTextAlign = "Right",
-				Color = Colors.epiphan_green,
-				Position = {6 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
-				Size = {4 * btn_size[1], btn_size[2]}
-			}
-		)
-		layout["ChannelStreamName" .. ctl_str] = {
-			PrettyName = "Channel" .. ctl_str .. "~Stream~RTMP Stream Name",
-			Style = "Text",
-			Position = {10 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
-			Size = {3 * btn_size[1], btn_size[2]}
-		}
-	end
+	
 
 	-- Recording Section
 
@@ -454,7 +470,7 @@ function GetControlLayout(props)
 		UnlinkOffColor = true,
 		Position = {
 			3 * btn_size[1] + channel_groupbox_position[1] + ((btn_size[1] - btn_size[2]) / 2),
-			3 * btn_size[2] + channel_groupbox_position[2]
+			3 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name
 		},
 		Size = {btn_size[2], btn_size[2]}
 	}
@@ -464,7 +480,7 @@ function GetControlLayout(props)
 		Style = "Button",
 		Legend = "Start",
 		ButtonStyle = "Momentary",
-		Position = {4 * btn_size[1] + channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2]},
+		Position = {4 * btn_size[1] + channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
 		Size = btn_size
 	}
 
@@ -474,12 +490,18 @@ function GetControlLayout(props)
 		Style = "Button",
 		Legend = "Stop",
 		ButtonStyle = "Momentary",
-		Position = {5 * btn_size[1] + channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2]},
+		Position = {5 * btn_size[1] + channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
 		Size = btn_size
 	}
 
 	-- Layout Section
-
+	layout["channel_layout" .. ctl_str] = {
+		PrettyName = "Channel" .. ctl_str .. "~Layout",
+		Style = "Text",
+		Position = {3 * btn_size[1] + channel_groupbox_position[1], 4 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
+		Size = {3 * btn_size[1], btn_size[2]}
+	}
+	--[[
 	for b = 1, MaxLayouts do
 		layout[string.format("ChannelLayoutSelect%02d", b) .. ctl_str] = {
 			PrettyName = "Channel" .. ctl_str .. string.format("~Layout~Select%02d", b),
@@ -505,7 +527,7 @@ function GetControlLayout(props)
 			Size = {btn_size[2], btn_size[2]}
 		}
 	end
-
+	]]
 	return layout, graphics
 end
 
@@ -544,7 +566,8 @@ if Controls then
 							Controls["ChannelStreamActive"][tbl.Channel].Value = (val == "on")
 						elseif key == "active_layout" then
 							for b = 1, MaxLayouts do
-								Controls[string.format("ChannelLayoutActive%02d", b)][tbl.Channel].Value = (tonumber(val) == b)
+								--Controls[string.format("ChannelLayoutActive%02d", b)][tbl.Channel].Value = (tonumber(val) == b)
+								Controls["channel_layout"][tbl.Channel].Value = tonumber(val)
 							end
 						end
 					end
@@ -730,6 +753,10 @@ if Controls then
 							setRecord(c, false)
 						end
 					end
+				end
+			elseif k == "channel_layout" then
+				v[c].EventHandler = function(changedControl)
+					setLayout(c, tonumber(v[c].String))
 				end
 			else
 				for b = 1, MaxLayouts do
