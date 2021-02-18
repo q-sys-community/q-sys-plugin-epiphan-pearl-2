@@ -11,11 +11,17 @@ PluginInfo = {
 
 -- Once you've drawn your plugin in Designer, you can determine what colors you use a lot. Save yourself some time by putting them in a table, and then simply calling them later.
 local Colors = {
+	epiphan_green = {140, 190, 63},
+	epiphan_grey = {87, 87, 87},
 	White = {255, 255, 255},
 	Black = {0, 0, 0},
 	Red = {255, 0, 0},
 	Green = {0, 255, 0}
 }
+
+function GetColor(props)
+	return Colors.epiphan_green
+end
 
 local MaxChannels = 10
 local MaxLayouts = 10
@@ -89,18 +95,18 @@ function GetControls(props)
 		{
 			Name = "ConnectionState",
 			ControlType = "Indicator",
-			IndicatorType = "Text"
-			--PinStyle = "Both",
-			--Count = 1,
-			--UserPin = true
+			IndicatorType = "Text",
+			PinStyle = "Output",
+			Count = 1,
+			UserPin = true
 		},
 		{
 			Name = "FirmwareVersion",
 			ControlType = "Indicator",
-			IndicatorType = "Text"
-			--PinStyle = "Output",
-			--Count = 1,
-			--UserPin = true
+			IndicatorType = "Text",
+			PinStyle = "Output",
+			Count = 1,
+			UserPin = true
 		},
 		-- Channel Control Pins
 		{
@@ -208,7 +214,70 @@ function GetControlLayout(props)
 	local layout = {}
 	local graphics = {}
 
-	local x, y = 0, 0
+	local title_size = {224, 32}
+	local btn_size = {32, 24}
+	local status_groupbox_size = {title_size[1], 4 * btn_size[2]}
+	local channel_groupbox_position = {0, title_size[2] + status_groupbox_size[2] + (0.5 * btn_size[2])}
+	local channel_groupbox_size = {2 * title_size[1], (7 * btn_size[2])}
+
+	graphics = {
+		{
+			Type = "Header", -- This is the overall groupbox that will give the plugin a more 'contained' look
+			Text = "Epiphan Pearl 2",
+			HTextAlign = "Center",
+			Color = Colors.epiphan_green,
+			FontSize = 16,
+			--StrokeColor = Colors.Black,
+			--StrokeWidth = 1,
+			Position = {0, 0},
+			Size = title_size
+		},
+		{
+			Type = "GroupBox", -- This is the overall groupbox that will give the plugin a more 'contained' look
+			Text = "Status",
+			HTextAlign = "Left",
+			Fill = Colors.epiphan_grey,
+			CornerRadius = 8,
+			StrokeColor = Colors.epiphan_green,
+			Color = Colors.epiphan_green,
+			StrokeWidth = 1,
+			Position = {0, title_size[2]},
+			Size = status_groupbox_size
+		},
+		{
+			Type = "Text",
+			Text = "Online:",
+			Font = "Roboto",
+			FontSize = 12,
+			FontStyle = "Bold",
+			HTextAlign = "Right",
+			Color = Colors.epiphan_green,
+			Position = {0, title_size[2] + (0.5 * btn_size[2])},
+			Size = {3 * btn_size[1], btn_size[2]}
+		},
+		{
+			Type = "Text",
+			Text = "IP Address:",
+			Font = "Roboto",
+			FontSize = 12,
+			FontStyle = "Bold",
+			HTextAlign = "Right",
+			Color = Colors.epiphan_green,
+			Position = {0, title_size[2] + (1.5 * btn_size[2])},
+			Size = {3 * btn_size[1], btn_size[2]}
+		},
+		{
+			Type = "Text",
+			Text = "Firmware:",
+			Font = "Roboto",
+			FontSize = 12,
+			FontStyle = "Bold",
+			HTextAlign = "Right",
+			Color = Colors.epiphan_green,
+			Position = {0, title_size[2] + (2.5 * btn_size[2])},
+			Size = {3 * btn_size[1], btn_size[2]}
+		}
+	}
 
 	-- Status
 	layout["Online"] = {
@@ -217,51 +286,41 @@ function GetControlLayout(props)
 		Color = {0, 255, 0},
 		OffColor = {200, 0, 0},
 		UnlinkOffColor = true,
-		Position = {x + 3, y + 20},
-		Size = {25, 25}
+		Position = {3 * btn_size[1], title_size[2] + (0.5 * btn_size[2])},
+		Size = {btn_size[2], btn_size[2]}
 	}
 	layout["ConnectionState"] = {
 		--PrettyName = "Connection State",
 		Style = "Text",
 		StrokeWidth = 0,
-		Position = {x + 54, y + 12},
-		Size = {200, 25}
+		Position = {3 * btn_size[1], title_size[2] + (1.5 * btn_size[2])},
+		Size = {3 * btn_size[1], btn_size[2]}
 	}
 	layout["FirmwareVersion"] = {
 		--PrettyName = "FirmwareVersion",
 		Style = "Text",
 		StrokeWidth = 0,
-		Position = {x + 275, y + 12},
-		Size = {125, 25}
+		Position = {3 * btn_size[1], title_size[2] + (2.5 * btn_size[2])},
+		Size = {3 * btn_size[1], btn_size[2]}
 	}
-	table.insert(
-		graphics,
-		{
-			Type = "GroupBox", -- This is the overall groupbox that will give the plugin a more 'contained' look
-			Text = "Status",
-			HTextAlign = "Left",
-			Fill = Colors.White,
-			CornerRadius = 8,
-			StrokeColor = Colors.Black,
-			StrokeWidth = 1,
-			Position = {x + 0, y + 0},
-			Size = {415, 48} -- The width of the main GroupBox is dependent on how many channels the user specified. More channels means a wider group box
-		}
-	)
 
 	local ctl_str = tostring(props["Channel Count"].Value == 1 and "" or " " .. ActiveRemote)
 
-	y = 55
-	-- Channel Name
-	layout["ChannelName" .. ctl_str] = {
-		PrettyName = "Channel" .. ctl_str .. "~Name",
-		Style = "Text",
-		Color = {200, 200, 200},
-		StrokeWidth = 0,
-		Position = {x + 80, y + 0},
-		Size = {150, 25}
-	}
-	-- Add Label
+	table.insert(
+		graphics,
+		{
+			Type = "GroupBox",
+			Text = "Channel " .. ctl_str,
+			HTextAlign = "Left",
+			Fill = Colors.epiphan_grey,
+			CornerRadius = 8,
+			StrokeColor = Colors.epiphan_green,
+			Color = Colors.epiphan_green,
+			StrokeWidth = 1,
+			Position = channel_groupbox_position,
+			Size = channel_groupbox_size
+		}
+	)
 	table.insert(
 		graphics,
 		{
@@ -271,44 +330,96 @@ function GetControlLayout(props)
 			FontSize = 12,
 			FontStyle = "Bold",
 			HTextAlign = "Right",
-			Color = Colors.Black,
-			Position = {x, y},
-			Size = {75, 25}
+			Color = Colors.epiphan_green,
+			Position = {channel_groupbox_position[1], 1 * btn_size[2] + channel_groupbox_position[2]},
+			Size = {3 * btn_size[1], btn_size[2]}
+		}
+	)
+	table.insert(
+		graphics,
+		{
+			Type = "Text",
+			Text = string.format("Stream"),
+			Font = "Roboto",
+			FontSize = 12,
+			FontStyle = "Bold",
+			HTextAlign = "Right",
+			Color = Colors.epiphan_green,
+			Position = {channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+			Size = {3 * btn_size[1], btn_size[2]}
+		}
+	)
+	table.insert(
+		graphics,
+		{
+			Type = "Text",
+			Text = string.format("Record"),
+			Font = "Roboto",
+			FontSize = 12,
+			FontStyle = "Bold",
+			HTextAlign = "Right",
+			Color = Colors.epiphan_green,
+			Position = {channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2]},
+			Size = {3 * btn_size[1], btn_size[2]}
+		}
+	)
+	table.insert(
+		graphics,
+		{
+			Type = "Text",
+			Text = string.format("Layout"),
+			Font = "Roboto",
+			FontSize = 12,
+			FontStyle = "Bold",
+			HTextAlign = "Right",
+			Color = Colors.epiphan_green,
+			Position = {channel_groupbox_position[1], 4 * btn_size[2] + channel_groupbox_position[2]},
+			Size = {3 * btn_size[1], btn_size[2]}
 		}
 	)
 
+	layout["ChannelName" .. ctl_str] = {
+		PrettyName = "Channel" .. ctl_str .. "~Name",
+		Style = "Text",
+		Color = {200, 200, 200},
+		StrokeWidth = 0,
+		Position = {3 * btn_size[1] + channel_groupbox_position[1], 1 * btn_size[2] + channel_groupbox_position[2]},
+		Size = {3 * btn_size[1], btn_size[2]}
+	}
+
 	-- Streaming Section
-	y = 90
-	-- Stream Start
-	layout["ChannelStreamStart" .. ctl_str] = {
-		PrettyName = "Channel" .. ctl_str .. "~Stream~Start",
-		Style = "Button",
-		Legend = "Start",
-		ButtonStyle = "Momentary",
-		Position = {x + 110, y + 0},
-		Size = {40, 25}
-	}
 
-	-- Stream Start
-	layout["ChannelStreamStop" .. ctl_str] = {
-		PrettyName = "Channel" .. ctl_str .. "~Stream~Stop",
-		Style = "Button",
-		Legend = "Stop",
-		ButtonStyle = "Momentary",
-		Position = {x + 155, y + 0},
-		Size = {40, 25}
-	}
-
-	-- Stream Active
 	layout["ChannelStreamActive" .. ctl_str] = {
 		PrettyName = "Channel" .. ctl_str .. "~Stream~Active",
 		Style = "Indicator",
 		Color = {255, 0, 0},
 		OffColor = {100, 0, 0},
 		UnlinkOffColor = true,
-		Position = {x + 80, y + 0},
-		Size = {25, 25}
+		Position = {
+			3 * btn_size[1] + channel_groupbox_position[1] + ((btn_size[1] - btn_size[2]) / 2),
+			2 * btn_size[2] + channel_groupbox_position[2]
+		},
+		Size = {btn_size[2], btn_size[2]}
 	}
+
+	layout["ChannelStreamStart" .. ctl_str] = {
+		PrettyName = "Channel" .. ctl_str .. "~Stream~Start",
+		Style = "Button",
+		Legend = "Start",
+		ButtonStyle = "Momentary",
+		Position = {4 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+		Size = btn_size
+	}
+
+	layout["ChannelStreamStop" .. ctl_str] = {
+		PrettyName = "Channel" .. ctl_str .. "~Stream~Stop",
+		Style = "Button",
+		Legend = "Stop",
+		ButtonStyle = "Momentary",
+		Position = {5 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+		Size = btn_size
+	}
+
 	if props["Editable RTMP Names"].Value then
 		-- RTMP Stream Name
 		table.insert(
@@ -320,44 +431,41 @@ function GetControlLayout(props)
 				FontSize = 12,
 				FontStyle = "Bold",
 				HTextAlign = "Right",
-				Color = Colors.Black,
-				Position = {x + 192, y + 0},
-				Size = {128, 25}
+				Color = Colors.epiphan_green,
+				Position = {6 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+				Size = {4 * btn_size[1], btn_size[2]}
 			}
 		)
 		layout["ChannelStreamName" .. ctl_str] = {
 			PrettyName = "Channel" .. ctl_str .. "~Stream~RTMP Stream Name",
 			Style = "Text",
-			Position = {x + 324, y + 0},
-			Size = {80, 25}
+			Position = {10 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2]},
+			Size = {3 * btn_size[1], btn_size[2]}
 		}
 	end
-	-- Add Label
-	table.insert(
-		graphics,
-		{
-			Type = "Text",
-			Text = string.format("Stream"),
-			Font = "Roboto",
-			FontSize = 12,
-			FontStyle = "Bold",
-			HTextAlign = "Right",
-			Color = Colors.Black,
-			Position = {x, y},
-			Size = {75, 25}
-		}
-	)
 
 	-- Recording Section
-	y = 130
-	-- Record Start
+
+	layout["ChannelRecordActive" .. ctl_str] = {
+		PrettyName = "Channel" .. ctl_str .. "~Record~Active",
+		Style = "Indicator",
+		Color = {255, 0, 0},
+		OffColor = {100, 0, 0},
+		UnlinkOffColor = true,
+		Position = {
+			3 * btn_size[1] + channel_groupbox_position[1] + ((btn_size[1] - btn_size[2]) / 2),
+			3 * btn_size[2] + channel_groupbox_position[2]
+		},
+		Size = {btn_size[2], btn_size[2]}
+	}
+
 	layout["ChannelRecordStart" .. ctl_str] = {
 		PrettyName = "Channel" .. ctl_str .. "~Record~Start",
 		Style = "Button",
 		Legend = "Start",
 		ButtonStyle = "Momentary",
-		Position = {x + 110, y + 0},
-		Size = {40, 25}
+		Position = {4 * btn_size[1] + channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2]},
+		Size = btn_size
 	}
 
 	-- Record Start
@@ -366,46 +474,23 @@ function GetControlLayout(props)
 		Style = "Button",
 		Legend = "Stop",
 		ButtonStyle = "Momentary",
-		Position = {x + 155, y + 0},
-		Size = {40, 25}
+		Position = {5 * btn_size[1] + channel_groupbox_position[1], 3 * btn_size[2] + channel_groupbox_position[2]},
+		Size = btn_size
 	}
-
-	-- Record Active
-	layout["ChannelRecordActive" .. ctl_str] = {
-		PrettyName = "Channel" .. ctl_str .. "~Record~Active",
-		Style = "Indicator",
-		Color = {255, 0, 0},
-		OffColor = {100, 0, 0},
-		UnlinkOffColor = true,
-		Position = {x + 80, y + 0},
-		Size = {25, 25}
-	}
-	-- Add Label
-	table.insert(
-		graphics,
-		{
-			Type = "Text",
-			Text = string.format("Record"),
-			Font = "Roboto",
-			FontSize = 12,
-			FontStyle = "Bold",
-			HTextAlign = "Right",
-			Color = Colors.Black,
-			Position = {x, y},
-			Size = {75, 25}
-		}
-	)
 
 	-- Layout Section
-	y = 170
+
 	for b = 1, MaxLayouts do
 		layout[string.format("ChannelLayoutSelect%02d", b) .. ctl_str] = {
 			PrettyName = "Channel" .. ctl_str .. string.format("~Layout~Select%02d", b),
 			Style = "Button",
 			Legend = string.format("%02d", b),
 			ButtonStyle = "Momentary",
-			Position = {x + 80 + (b * 30), y + 0},
-			Size = {25, 25}
+			Position = {
+				((b-1) * btn_size[2]) + (3 * btn_size[1]) + channel_groupbox_position[1],
+				4 * btn_size[2] + channel_groupbox_position[2]
+			},
+			Size = {btn_size[2], btn_size[2]}
 		}
 		layout[string.format("ChannelLayoutActive%02d", b) .. ctl_str] = {
 			PrettyName = "Channel" .. ctl_str .. string.format("~Layout~Active %02d", b),
@@ -413,25 +498,13 @@ function GetControlLayout(props)
 			Color = {0, 255, 0},
 			OffColor = {0, 100, 0},
 			UnlinkOffColor = true,
-			Position = {x + 80 + (b * 30), y + 30},
-			Size = {25, 25}
+			Position = {
+				((b-1) * btn_size[2]) + (3 * btn_size[1]) + channel_groupbox_position[1],
+				5 * btn_size[2] + channel_groupbox_position[2]
+			},
+			Size = {btn_size[2], btn_size[2]}
 		}
 	end
-	-- Add Label
-	table.insert(
-		graphics,
-		{
-			Type = "Text",
-			Text = string.format("Layout"),
-			Font = "Roboto",
-			FontSize = 12,
-			FontStyle = "Bold",
-			HTextAlign = "Right",
-			Color = Colors.Black,
-			Position = {x, y},
-			Size = {75, 25}
-		}
-	)
 
 	return layout, graphics
 end
