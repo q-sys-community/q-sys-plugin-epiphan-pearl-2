@@ -93,13 +93,13 @@ function GetControls(props)
 			UserPin = true
 		},
 		{
-			Name = "ConnectionState",
-			ControlType = "Indicator",
-			IndicatorType = "Text",
-			PinStyle = "Output",
-			Count = 1,
-			UserPin = true
-		},
+            Name = "ConnectionState",
+            ControlType = "Indicator",
+            IndicatorType = "Status",
+            PinStyle = "Output",
+            Count = 1,
+            UserPin = true
+        },
 		{
 			Name = "FirmwareVersion",
 			ControlType = "Indicator",
@@ -268,7 +268,7 @@ function GetControlLayout(props)
 		},
 		{
 			Type = "Text",
-			Text = "IP Address:",
+			Text = "Connection:",
 			Font = "Roboto",
 			FontSize = 12,
 			FontStyle = "Bold",
@@ -292,7 +292,7 @@ function GetControlLayout(props)
 
 	-- Status
 	layout["Online"] = {
-		PrettyName = "Online",
+		PrettyName = "System~Online",
 		Style = "Indicator",
 		Color = {0, 255, 0},
 		OffColor = {200, 0, 0},
@@ -301,16 +301,16 @@ function GetControlLayout(props)
 		Size = {btn_size[2], btn_size[2]}
 	}
 	layout["ConnectionState"] = {
-		--PrettyName = "Connection State",
-		Style = "Text",
-		StrokeWidth = 0,
+		PrettyName = "System~Connection State",
+		Style = "TextBox",
+		StrokeWidth = 1,
 		Position = {3 * btn_size[1], title_size[2] + (1.5 * btn_size[2])},
 		Size = {3 * btn_size[1], btn_size[2]}
 	}
 	layout["FirmwareVersion"] = {
-		--PrettyName = "FirmwareVersion",
+		PrettyName = "System~FirmwareVersion",
 		Style = "Text",
-		StrokeWidth = 0,
+		StrokeWidth = 1,
 		Position = {3 * btn_size[1], title_size[2] + (2.5 * btn_size[2])},
 		Size = {3 * btn_size[1], btn_size[2]}
 	}
@@ -419,7 +419,7 @@ function GetControlLayout(props)
 		PrettyName = "Channel" .. ctl_str .. "~Name",
 		Style = "Text",
 		Color = {200, 200, 200},
-		StrokeWidth = 0,
+		StrokeWidth = 1,
 		Position = {3 * btn_size[1] + channel_groupbox_position[1], 1 * btn_size[2] + channel_groupbox_position[2]},
 		Size = {3 * btn_size[1], btn_size[2]}
 	}
@@ -457,8 +457,6 @@ function GetControlLayout(props)
 		Position = {5 * btn_size[1] + channel_groupbox_position[1], 2 * btn_size[2] + channel_groupbox_position[2] + add_space_rtmp_name},
 		Size = btn_size
 	}
-
-	
 
 	-- Recording Section
 
@@ -546,11 +544,13 @@ if Controls then
 			-- Reset the Comms Timer
 			timerComms:Start(30)
 			Controls.Online.Boolean = true
+			Controls["ConnectionState"].Value = 0
+			Controls["ConnectionState"].String = Properties["IP Host"].Value
 			if #data == 0 then
 				getChannelDetails(tbl.Channel)
 			else
 				for line in data:gmatch("([^\n]*)\n?") do
-					--print(line)
+					print(line)
 					delim = string.find(line, " = ")
 					if delim ~= nil then
 						key = line:sub(1, delim - 1)
@@ -576,6 +576,8 @@ if Controls then
 		else
 			if code > 0 then
 				print("HTTP Response Code: ", code)
+				Controls["ConnectionState"].Value = 2
+				Controls["ConnectionState"].String = "HTTP code " .. math.floor(code)
 			end
 		end
 	end
@@ -796,5 +798,6 @@ if Controls then
 	end
 
 	timerPoll:Start(15)
+	Controls["ConnectionState"].Value = 5
 	getChannelDetails(0)
 end
