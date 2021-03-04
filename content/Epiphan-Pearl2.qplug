@@ -339,7 +339,7 @@ function GetControlLayout(props)
 			graphics,
 			{
 				Type = "Text",
-				Text = string.format("RTMP Name"),
+				Text = string.format("RTMP Name:"),
 				Font = "Roboto",
 				FontSize = 12,
 				FontStyle = "Bold",
@@ -362,7 +362,7 @@ function GetControlLayout(props)
 		graphics,
 		{
 			Type = "Text",
-			Text = string.format("Chan Name"),
+			Text = string.format("Channel Name:"),
 			Font = "Roboto",
 			FontSize = 12,
 			FontStyle = "Bold",
@@ -376,7 +376,7 @@ function GetControlLayout(props)
 		graphics,
 		{
 			Type = "Text",
-			Text = string.format("Stream"),
+			Text = string.format("Stream:"),
 			Font = "Roboto",
 			FontSize = 12,
 			FontStyle = "Bold",
@@ -390,7 +390,7 @@ function GetControlLayout(props)
 		graphics,
 		{
 			Type = "Text",
-			Text = string.format("Record"),
+			Text = string.format("Record:"),
 			Font = "Roboto",
 			FontSize = 12,
 			FontStyle = "Bold",
@@ -404,7 +404,7 @@ function GetControlLayout(props)
 		graphics,
 		{
 			Type = "Text",
-			Text = string.format("Layout"),
+			Text = string.format("Layout:"),
 			Font = "Roboto",
 			FontSize = 12,
 			FontStyle = "Bold",
