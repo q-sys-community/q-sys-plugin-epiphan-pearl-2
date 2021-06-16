@@ -48,7 +48,7 @@ function GetProperties()
 		{
 			Name = "Channel Count",
 			Type = "integer",
-			Min = 2, -- Set to 2 to prevent complex code to handle non-arrays
+			Min = 1, -- Set to 2 to prevent complex code to handle non-arrays
 			Max = MaxChannels,
 			Value = 2
 		},
@@ -697,7 +697,7 @@ if Controls then
 							setStream(c, true)
 						end
 					end
-				end
+				end--[[
 			elseif k == "ChannelStreamStop" then
 				-- Handle Button:: Channel Record Start
 				-- Handle Button:: Channel Stream Start
@@ -778,7 +778,7 @@ if Controls then
 							end
 						end
 					end
-				end
+				end]]
 			end
 		end
 	end
