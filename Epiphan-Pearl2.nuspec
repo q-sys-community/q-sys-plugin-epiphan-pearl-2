@@ -9,7 +9,7 @@
     <owners>Q-Sys Community</owners>
     <license type="expression">GPL-3.0-or-later</license>
     <projectUrl>https://github.com/q-sys-community/q-sys-plugin-epiphan-pearl-2</projectUrl>
-    <iconUrl>http://content/images/epiphan-logo-128px.png</iconUrl>
+    <iconUrl>http://content/images/epiphan-video-vector-logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Package description</description>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
